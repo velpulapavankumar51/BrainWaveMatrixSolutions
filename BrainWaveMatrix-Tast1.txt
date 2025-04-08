@@ -1,0 +1,247 @@
+Design and Implementation of a Relational Database for s library management system:
+
+Below is the database management tables regarding library management system.
+
+1.Create table books:
+
+CREATE TABLE Books (
+    BookID INT PRIMARY KEY AUTO_INCREMENT,
+    Title VARCHAR(255) NOT NULL,
+    Publisher VARCHAR(255),
+    YearPublished INT,
+    ISBN VARCHAR(13) UNIQUE,
+    CopiesAvailable INT,
+    Genre VARCHAR(100)
+);
+
+INSERT INTO Books (Title, Publisher, YearPublished, ISBN, CopiesAvailable, Genre)
+VALUES 
+('The Great Gatsby', 'Scribner', 1925, '9780743273565', 5, 'Fiction'),
+('To Kill a Mockingbird', 'J.B. Lippincott & Co.', 1960, '9780060935467', 3, 'Fiction'),
+('1984', 'Secker & Warburg', 1949, '9780451524935', 7, 'Dystopian'),
+('Moby Dick', 'Harper & Brothers', 1851, '9781503280786', 2, 'Adventure'),
+('The Catcher in the Rye', 'Little, Brown and Company', 1951, '9780316769488', 4, 'Fiction');
+
+Output:
+
+ select * from books;
+
+  BOOKID TITLE              PUBLISHER            YEARPUBLISHED ISBN          COPIESAVAILABLE GENRE
+-------- ------------------ -------------------- ------------- ------------- --------------- -----
+     101 The Great Gatsby   Scribner                      1925 9780743273565               5 Fiction
+     102  Mockingbird       J.B. Lippincott               1960 9780060935467               3 Fiction
+     103 1984               Secker                        1949 9780451524935               7 Dystopian
+     104 Moby Dick          Harper                        1851 9781503280786               2 Adventure
+     105 The Catcher        Little Brown                  1951 9780316769488               4 Fiction
+
+
+2.Authors Table:
+
+CREATE TABLE Authors (
+    AuthorID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    BirthDate DATE,
+    DeathDate DATE
+);
+
+INSERT INTO Authors (FirstName, LastName, BirthDate, DeathDate)
+VALUES 
+('F. Scott', 'Fitzgerald', '1896-09-24', '1940-12-21'),
+('Harper', 'Lee', '1926-04-28', '2016-02-19'),
+('George', 'Orwell', '1903-06-25', '1950-01-21'),
+('Herman', 'Melville', '1819-08-01', '1891-09-28'),
+('J.D.', 'Salinger', '1919-01-01', '2010-01-27');
+
+Output:
+
+select * from authors;
+
+ AUTHORID FIRSTNAME       LASTNAME        BIRTHDATE DEATHDATE
+--------- --------------- --------------- --------- ---------
+      101 F. Scott        Fitzgerald      02-NOV-96 01-DEC-40
+      102 Harper          Lee             28-APR-26 19-FEB-16
+      103 George          Orwell          25-JUN-03 21-JAN-50
+      104 Herman          Melville        01-AUG-19 28-NOV-91
+      105 J.D.            Salinger        01-JAN-19 27-JAN-10
+
+3.Books_Authors Table (Many-to-many relationship between Books and Authors)
+
+CREATE TABLE Books_Authors (
+    BookID INT,
+    AuthorID INT,
+    PRIMARY KEY (BookID, AuthorID),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (AuthorID) REFERENCES Authors(AuthorID)
+);
+
+INSERT INTO Books_Authors (BookID, AuthorID)
+VALUES 
+(101, 101),  
+(102, 102), 
+(103, 103),  
+(104, 104),  
+(105, 105);  
+
+Output:
+ select * from books_authors;
+
+BOOKID   AUTHORID
+------ ----------
+   101        101
+   102        102
+   103        103
+   104        104
+   105        105
+
+4. Categories Table:
+
+INSERT INTO Categories (Name)
+VALUES 
+('Fiction'),
+('Dystopian'),
+('Adventure'),
+('Classic'),
+('Literature');
+
+INSERT INTO Categories (Name)
+VALUES 
+('Fiction'),
+('Dystopian'),
+('Adventure'),
+('Classic'),
+('Literature');
+
+Output:
+
+select * from Categories;
+
+CATEGORYID NAME
+---------- ----------------
+       201 Fiction
+       202 Dystopian
+       203 Adventure
+       204 Classic
+       205 Literature
+
+5.Books_Categories Table (Many-to-Many Relationship):
+
+CREATE TABLE Books_Categories (
+    BookID INT,
+    CategoryID INT,
+    PRIMARY KEY (BookID, CategoryID),
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+INSERT INTO Books_Categories (BookID, CategoryID)
+VALUES 
+(101,201),  
+(102,202),  
+(103, 203),  
+(104, 204),
+(105,205);
+
+Output:
+ 
+select * from Books_Categories;
+
+BOOKID CATEGORYID
+------ ----------
+   101        201
+   102        202
+   103        203
+   104        204
+   105        205
+ 
+6.Patrons Table:
+
+CREATE TABLE Patrons (
+    PatronID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Address VARCHAR(255),
+    Email VARCHAR(255) UNIQUE,
+    PhoneNumber VARCHAR(20),
+    MembershipType VARCHAR(50)
+);
+
+INSERT INTO Patrons (FirstName, LastName, Address, Email, PhoneNumber, MembershipType)
+VALUES 
+('John', 'Doe', '123 Main St, Springfield', 'johndoe@example.com', '123-456-7890', 'Regular'),
+('Jane', 'Smith', '456 Oak St, Springfield', 'janesmith@example.com', '987-654-3210', 'Premium'),
+('Alice', 'Johnson', '789 Pine St, Springfield', 'alicej@example.com', '555-555-5555', 'Regular'),
+('Bob', 'Brown', '101 Maple St, Springfield', 'bobbrown@example.com', '111-222-3333', 'Premium');
+
+Output:
+
+ select * from Patrons;
+
+ PATRONID FIRSTNAME            LASTNAME             ADDRESS                   EMAIL                     PHONENUMBER     MEMBERSHIPTYPE
+--------- -------------------- -------------------- ------------------------- ---------------------
+      301 John                 Doe                  Springfield               johndoe@example.com       123-456-7890    Regular
+      302 Jane                 Smith                456 Oak St, Springfield   janesmith@example.com     987-654-3210    Premium
+      303 Alice                Johnson              789 Pine St, Springfield  alicej@example.com        555-555-5555    Regular
+      304 Bob                  Brown                101 Maple St, Springfield bobbrown@example.com      111-222-3333    Premium
+
+7.Staff Table:
+
+CREATE TABLE Staff (
+    StaffID INT PRIMARY KEY AUTO_INCREMENT,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Role VARCHAR(100),
+    Email VARCHAR(255) UNIQUE,
+    PhoneNumber VARCHAR(20)
+);
+
+
+INSERT INTO Staff (FirstName, LastName, Role, Email, PhoneNumber)
+VALUES 
+('Alice', 'Walker', 'Librarian', 'alicewalker@example.com', '555-111-2222'),
+('Tom', 'Harris', 'Assistant Librarian', 'tomharris@example.com', '555-333-4444'),
+('Emma', 'Davis', 'Technician', 'emmadavis@example.com', '555-555-6666');
+
+
+Output:
+
+ select * from staff;
+
+
+ STAFFID FIRSTNAME            LASTNAME             ROLE                 EMAIL                     PHONENUMBER
+
+-------- -------------------- -------------------- -------------------- ------------------------- 
+     401 Alice                Walker               Librarian            alicewalker@example.com   555-111-2222
+     402 Tom                  Harris               Assistant Librarian  tomharris@example.com     555-333-4444
+     403 Emma                 Davis                Technician           emmadavis@example.com     555-555-6666
+
+8. Loans Table:
+
+CREATE TABLE Loans (
+    LoanID INT PRIMARY KEY AUTO_INCREMENT,
+    BookID INT,
+    PatronID INT,
+    LoanDate DATE,
+    DueDate DATE,
+    ReturnDate DATE,
+    StaffID INT,
+    FOREIGN KEY (BookID) REFERENCES Books(BookID),
+    FOREIGN KEY (PatronID) REFERENCES Patrons(PatronID),
+    FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
+);
+
+INSERT INTO Loans (BookID, PatronID, LoanDate, DueDate, StaffID)
+VALUES 
+(501,101, '01-JAN-25', '15-APR-25', 401), 
+(502,102, '01-JAN-25', '15-APR-25', 402), 
+(503,103, '01-JAN-25', '15-APR-25', 403); 
+
+Output:
+
+ select * from loans;
+
+LOANID     BOOKID   PATRONID LOANDATE  DUEDATE   RETURNDAT    STAFFID
+------ ---------- ---------- --------- --------- --------- ----------
+   501        101        301 01-JAN-25 15-APR-25                  401
+   502        102        302 01-JAN-25 15-APR-25                  402
+   503        103        303 01-JAN-25 15-APR-25                  403
