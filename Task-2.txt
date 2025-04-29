@@ -1,0 +1,189 @@
+ Task-2: Online Store Database Development
+
+Online Store Database Design
+
+Main Entities & Tables
+
+1.Customers – Stores customer info
+
+2.Products – Stores product listings
+
+3.Orders – Header table for customer orders
+
+4.OrderItems – Line items within each order
+
+5.Payments – Records payment transactions
+
+1.customer table:
+
+CREATE TABLE Customers (
+    customer_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
+    phone VARCHAR(20),
+    address VARCHAR(20)
+);
+
+insert into values(1, 'John Doe','john@example.com','123-456-7890','123 Elm Street'),(2,'pavan','pavan@gmail.com','8688107516','kadapa,AP'),
+(3,'kumar','kumare@gmail.com','9988107516','chittor,AP'),
+(4,'nani','nani@gmail.com','9983007532','kurnol,AP'),
+(5 ,'chinnu','chinnu@gmail.com','8983007592','anathapur,AP');
+
+select * from customers;
+
+output:
+
+CUSTOMER_ID NAME                 EMAIL                PHONE           ADDRESS
+----------- -------------------- -------------------- --------------- --------------------
+          1 John Doe             john@example.com     123-456-7890    123 Elm Street
+          2 pavan                pavan@gmail.com      8688107516      kadapa,AP
+          3 kumar                kumare@gmail.com     9988107516      chittor,AP
+          4 nani                 nani@gmail.com       9983007532      kurnol,AP
+          5 chinnu               chinnu@gmail.com     8983007592      anathapur,AP
+
+2.Products Table:
+
+CREATE TABLE Products (
+    product_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    description TEXT,
+    price DECIMAL(10, 2),
+    stock INT
+);
+
+insert into Products values( 101, 'Wireless Mouse','2.4GHz mouse',26,100),
+ (102, 'Dell laptop','12gbram,64bit',59999,10),
+ (103, 'Roadstar Tshirt','Premiumquality',999,20),
+ (104, 'LG Ac ','1Ton Premiumquality',49999,8),
+ (105, 'Iphone 15','12gb ram,256gb rom',129999,65);
+
+select * from products;
+
+output:
+
+PRODUCT_ID NAME                 DESCRIPTION               PRICE      STOCK
+---------- -------------------- -------------------- ---------- ----------
+       101 Wireless Mouse       2.4GHz mouse                 26        100
+       102 Dell laptop          12gbram,64bit             59999         10
+       103 Roadstar Tshirt      Premiumquality              999         20
+       104 LG Ac                1Ton Premiumquality       49999          8
+       105 Iphone 15            12gb ram,256gb rom       129999         65
+
+3.Orders Table:
+
+
+CREATE TABLE Orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (customer_id) REFERENCES Customers(customer_id)
+);
+
+insert into orders values( 501,1,'29-APR-25','confirm'),
+ (502,2, '28-APR-25', 'pending'),
+ (503,3 ,'27-APR-25' ,'confirm'),
+ (504,4, '30-APR-25', 'decline'),
+ (505,5 ,'19-APR-25' ,'confirm');
+
+select * from orders;
+
+output:
+
+ ORDER_ID CUSTOMER_ID ORDER_DAT STATUS
+--------- ----------- --------- ------------
+      501           1 29-APR-25 confirm
+      502           2 28-APR-25 pending
+      503           3 27-APR-25 confirm
+      504           4 30-APR-25 decline
+      505           5 19-APR-25 confirm
+
+4.OrderItems Table:
+
+CREATE TABLE OrderItems (
+    order_item_id INT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT,
+    unit_price DECIMAL(10, 2),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+insert into orderitems values(1001 ,501,101,2,25.99),
+         (1002,502,102,3,4565.99),
+         (1003,503,103,4,44565.89),
+         (1004,504,104 ,1,30565.89),
+         (1005,505,105,5,3535.99);
+
+select * from orderitems;
+
+ORDER_ITEM_ID   ORDER_ID PRODUCT_ID   QUANTITY UNIT_PRICE
+------------- ---------- ---------- ---------- ----------
+         1001        501        101          2      25.99
+         1002        502        102          3    4565.99
+         1003        503        103          4   44565.89
+         1004        504        104          1   30565.89
+         1005        505        105          5    3535.99
+
+5.Payments Table:
+
+ SELECT 
+     O.order_id, 
+     O.order_date, 
+     O.status,
+     SUM(OI.quantity * OI.unit_price) AS total_amount
+ FROM Orders O
+ JOIN OrderItems OI ON O.order_id = OI.order_id
+ WHERE O.customer_id = 1
+ GROUP BY O.order_id, O.order_date, O.status;
+
+output:
+
+ORDER_ID ORDER_DAT STATUS               TOTAL_AMOUNT
+-------- --------- -------------------- ------------
+     501 29-APR-25 confirm                     51.98
+
+some example quries:
+
+Top-Selling Products:
+
+SELECT 
+    P.name, 
+    SUM(OI.quantity) AS total_units_sold
+FROM OrderItems OI
+JOIN Products P ON OI.product_id = P.product_id
+GROUP BY P.name
+ORDER BY total_units_sold DESC;
+
+output:
+
+NAME                 TOTAL_UNITS_SOLD
+-------------------- ----------------
+Iphone 15                           5
+Roadstar Tshirt                     4
+Dell laptop                         3
+Wireless Mouse                      2
+LG Ac                               1
+
+Customers with Most Orders:
+
+ SELECT 
+     C.customer_id, 
+     C.name, 
+     COUNT(O.order_id) AS orders_count
+ FROM Customers C
+ JOIN Orders O ON C.customer_id = O.customer_id
+ GROUP BY C.customer_id, C.name
+ ORDER BY orders_count DESC;
+
+output:
+
+CUSTOMER_ID NAME                 ORDERS_COUNT
+----------- -------------------- ------------
+          3 kumar                           1
+          1 John Doe                        1
+          4 nani                            1
+          5 chinnu                          1
+          2 pavan                           1
+
